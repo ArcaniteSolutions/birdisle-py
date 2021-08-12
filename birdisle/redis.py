@@ -13,18 +13,22 @@ class LocalSocketConnection(redis.connection.Connection):
     """Socket connection to a Birdisle server"""
     description_format = "LocalSocketConnection<db=%(db)s>"
 
-    def __init__(self, server, db=0, password=None,
+    def __init__(self, server, db=0, username=None, password=None,
                  socket_timeout=None, encoding='utf-8',
                  encoding_errors='strict', decode_responses=False,
                  retry_on_timeout=False,
                  parser_class=redis.connection.DefaultParser,
-                 socket_read_size=65536):
+                 socket_read_size=65536, health_check_interval=0, client_name=None):
         # This code is mostly copied from redis.connection.UnixConnection
         self.pid = os.getpid()
         self.db = 0
+        self.username = username
+        self.client_name = client_name
         self.password = password
         self.socket_timeout = socket_timeout
         self.retry_on_timeout = retry_on_timeout
+        self.health_check_interval = health_check_interval
+        self.next_health_check = 0
         self.encoder = redis.connection.Encoder(
             encoding, encoding_errors, decode_responses)
         self._server = server
